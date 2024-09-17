@@ -5,11 +5,11 @@ import re
 
 app = Flask(__name__)
 
-# MySQL Database connection
+
 def create_connection():
     try:
         connection = mysql.connector.connect(
-            host='localhost',  # Replace with your credentials
+            host='localhost',  
             user='root',
             password='Vanathi@2003',
             database='retail_store'
@@ -32,7 +32,7 @@ def chat():
     if not connection:
         return jsonify({"response": "Database connection failed. Please try again."}), 500
     
-    # Process the query and fetch data from MySQL
+    
     response = handle_query(user_query, connection)
 
     connection.close()
@@ -41,7 +41,7 @@ def chat():
 def handle_query(query, connection):
     cursor = connection.cursor()
     
-    # Check for inventory-related queries
+    
     if re.search(r'(stock|available|in stock|inventory)', query, re.I):
         product, size = extract_product_and_size(query)
         if product:
@@ -54,7 +54,7 @@ def handle_query(query, connection):
         else:
             return "Sorry, I couldn't understand which product you're asking about."
     
-    # Check for promotion-related queries
+    
     elif re.search(r'(promotion|discount|offer)', query, re.I):
         product_category = extract_product_category(query)
         if product_category:
@@ -67,26 +67,26 @@ def handle_query(query, connection):
         else:
             return "Sorry, I couldn't identify which product category you're asking about."
     
-    # Catch-all for unrecognized queries
+    
     else:
         return "I'm not sure how to help with that. Can you ask in a different way?"
 
 def extract_product_and_size(query):
     
-    # Define common products and sizes for matching (extend this as needed)
+    
     products = ['shoe', 'jacket', 'smartphone']
-    sizes = ['6', '7', '8', '9', '10', '11', '12']  # Add more sizes as needed
+    sizes = ['6', '7', '8', '9', '10', '11', '12'] 
 
     product = None
     size = None
 
-    # Extract product
+    
     for p in products:
         if p in query.lower():
             product = p
             break
     
-    # Extract size
+    
     for s in sizes:
         if s in query:
             size = s
