@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Store Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            ChatBot
+        </div>
+        <div class="chat-box" id="chat-box">
+            <!-- Chat messages will be appended here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <div class="typing-indicator" id="typing-indicator">Bot is typing...</div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // Append greeting message when the page loads
+        window.onload = function() {
+            appendBotMessage("Hello! Chatbot welcomes you. How can I assist you today?");
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === "") return;
+
+            appendUserMessage(message);
+            userInput.value = "";
+            showTypingIndicator();
+
+            // Send the user message to the backend (Flask)
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTypingIndicator();
+                appendBotMessage(data.response);
+            })
+            .catch(error => {
+                hideTypingIndicator();
+                appendBotMessage("An error occurred. Please try again.");
+            });
+        }
+
+        function appendUserMessage(message) {
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user-message';
+            userMessage.innerHTML = `<div class="user-bubble">${message}</div>`;
+            chatBox.appendChild(userMessage);
+            scrollChatToBottom();
+        }
+
+        function appendBotMessage(message) {
+            const botMessage = document.createElement('div');
+            botMessage.className = 'bot-message';
+            botMessage.innerHTML = `<div class="bot-bubble">${message}</div>`;
+            chatBox.appendChild(botMessage);
+            scrollChatToBottom();
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function scrollChatToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Press Enter to send message
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
